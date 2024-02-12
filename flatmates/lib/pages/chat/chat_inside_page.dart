@@ -1,16 +1,18 @@
 import 'package:flatmates/const/colors.dart';
 import 'package:flatmates/const/font.dart';
+import 'package:flatmates/models/chat_model.dart';
 import 'package:flutter/material.dart';
 
 class ChatInsidePage extends StatelessWidget {
-  const ChatInsidePage({super.key});
+  final Chat chat;
+  const ChatInsidePage({super.key, required this.chat});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
         title: Text(
-          "User100",
+          chat.name,
           style: AppStyles.mondaB.copyWith(
               fontSize: 22, color: Colors.black, fontWeight: FontWeight.bold),
         ),
@@ -19,7 +21,7 @@ class ChatInsidePage extends StatelessWidget {
         children: [
           Expanded(
             child: ListView.builder(
-              itemCount: 20,
+              itemCount: chat.messages.length,
               reverse: true,
               itemBuilder: (context, index) {
                 bool isUserMessage = index % 2 == 0;

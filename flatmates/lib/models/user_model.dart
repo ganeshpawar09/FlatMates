@@ -1,7 +1,6 @@
 class User {
   String id;
   String name;
-  String gender;
   String phoneNumber;
   List<String> favouriteFlats;
   List<String> ownFlats;
@@ -10,7 +9,6 @@ class User {
   User({
     required this.id,
     required this.name,
-    required this.gender,
     required this.phoneNumber,
     required this.favouriteFlats,
     required this.ownFlats,
@@ -21,7 +19,6 @@ class User {
     return User(
       id: json['_id'],
       name: json['name'],
-      gender: json['gender'],
       phoneNumber: json['phoneNumber'],
       favouriteFlats: List<String>.from(json['favouriteFlats']),
       ownFlats: List<String>.from(json['ownFlats']),
@@ -32,7 +29,6 @@ class User {
   Map<String, dynamic> toJson() {
     return {
       'name': name,
-      'gender': gender,
       'phoneNumber': phoneNumber,
       'favouriteFlats': favouriteFlats,
       'ownFlats': ownFlats,

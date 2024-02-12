@@ -103,12 +103,18 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     filter = [sortByWidget, priceFilterWidget, preferenceWidget, clearWidget];
-
+    Provider.of<SocketProvider>(context, listen: false).connectToSocket();
     // if (!Provider.of<FlatProvider>(context, listen: false).flatListFetched) {
     //   Provider.of<FlatProvider>(context, listen: false)
     //       .fetchAllFlats(false, "");
     // }
-    connectToServer();
+  }
+
+  @override
+  void dispose() {
+    Provider.of<SocketProvider>(context, listen: false).disconnectToSocket();
+
+    super.dispose();
   }
 
   @override

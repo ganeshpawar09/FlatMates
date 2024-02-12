@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flatmates/const/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class UserProvider extends ChangeNotifier {
   Future<bool> sendOTPUser(String number) async {
     try {
-      final url = "https://flatmates.onrender.com/api/v1/user/send-otp";
+      final url = "$server/user/send-otp";
       final response = await http.post(
         Uri.parse(url),
         body: {
@@ -28,7 +29,7 @@ class UserProvider extends ChangeNotifier {
   Future<bool> verifyOTPUser(String number, String otp) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     try {
-      final url = "https://flatmates.onrender.com/api/v1/user/verify-otp";
+      final url = "$server/user/verify-otp";
       final response = await http.post(
         Uri.parse(url),
         body: {
@@ -72,8 +73,7 @@ class UserProvider extends ChangeNotifier {
 
   Future<bool> verifyUserToken(String accessToken) async {
     try {
-      final url =
-          "https://flatmates.onrender.com/api/v1/user/access-token-verify";
+      final url = "$server/user/access-token-verify";
       final http.Response response = await http.get(Uri.parse(url), headers: {
         "Authorization": accessToken,
         "Content-Type": "application/json",

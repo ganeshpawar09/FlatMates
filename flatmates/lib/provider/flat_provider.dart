@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flatmates/const/constant.dart';
 import 'package:flatmates/models/flat_model.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -27,14 +28,13 @@ class FlatProvider extends ChangeNotifier {
   Future<void> fetchAllFlats(bool refresh, String filter) async {
     try {
       if (refresh) {
-
         flatList = [];
         notifyListeners();
       }
       print("fetching started");
 
       SharedPreferences preferences = await SharedPreferences.getInstance();
-      var url = "https://flatmates.onrender.com/api/v1/flat/fetch-flat";
+      var url = "$server/flat/fetch-flat";
       if (filter.isNotEmpty) {
         url += filter;
       }
@@ -78,8 +78,7 @@ class FlatProvider extends ChangeNotifier {
         notifyListeners();
       }
       SharedPreferences preferences = await SharedPreferences.getInstance();
-      final url =
-          "https://flatmates.onrender.com/api/v1/flat/fetch-favourite-flat";
+      final url = "$server/flat/fetch-favourite-flat";
       SharedPreferences pref = await SharedPreferences.getInstance();
       String? accessToken = await pref.getString("accessToken");
       if (accessToken == null) {
@@ -114,8 +113,7 @@ class FlatProvider extends ChangeNotifier {
   Future<bool> addFlatToFavourite(String flatId) async {
     try {
       SharedPreferences preferences = await SharedPreferences.getInstance();
-      final url =
-          "https://flatmates.onrender.com/api/v1/flat/add-flat-to-favourite";
+      final url = "$server/flat/add-flat-to-favourite";
       SharedPreferences pref = await SharedPreferences.getInstance();
       String? accessToken = await pref.getString("accessToken");
       if (accessToken == null) {
@@ -154,8 +152,7 @@ class FlatProvider extends ChangeNotifier {
     try {
       print(flatId);
       SharedPreferences preferences = await SharedPreferences.getInstance();
-      final url =
-          "https://flatmates.onrender.com/api/v1/flat/remove-flat-from-favourite";
+      final url = "$server/flat/remove-flat-from-favourite";
       SharedPreferences pref = await SharedPreferences.getInstance();
       String? accessToken = await pref.getString("accessToken");
       if (accessToken == null) {

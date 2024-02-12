@@ -2,12 +2,14 @@ import 'package:flatmates/const/colors.dart';
 import 'package:flatmates/const/font.dart';
 import 'package:flatmates/models/flat_model.dart';
 import 'package:flatmates/provider/flat_provider.dart';
+import 'package:flatmates/provider/socket_provider.dart';
 import 'package:flatmates/widget/home_page_filter_card_skelaton.dart';
 import 'package:flatmates/widget/home_page_flat_card_skelaton.dart';
 import 'package:flatmates/widget/home_page_flat_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:unicons/unicons.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,6 +20,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<Widget Function()> filter = [];
+  late IO.Socket socket;
   bool appbar = true;
   bool islowtohigh = false;
   bool ishightolow = false;
@@ -78,13 +81,34 @@ class _HomePageState extends State<HomePage> {
         .fetchAllFlats(true, "");
   }
 
+  void connectToServer() async {
+    socket = IO.io('https://flatmates.onrender.com/', <String, dynamic>{
+      'transports': ['websocket'],
+      'autoConnect': false,
+    });
+
+    socket.onConnect((_) {
+      print('Connected to server');
+      print('Socket ID: ${socket.id}');
+    });
+
+    socket.onDisconnect((_) {
+      print('Disconnected from server');
+    });
+
+    await socket.connect();
+  }
+
   @override
   void initState() {
     super.initState();
     filter = [sortByWidget, priceFilterWidget, preferenceWidget, clearWidget];
-    if (!Provider.of<FlatProvider>(context, listen: false).flatListFetched)
-      Provider.of<FlatProvider>(context, listen: false)
-          .fetchAllFlats(false, "");
+
+    // if (!Provider.of<FlatProvider>(context, listen: false).flatListFetched) {
+    //   Provider.of<FlatProvider>(context, listen: false)
+    //       .fetchAllFlats(false, "");
+    // }
+    connectToServer();
   }
 
   @override

@@ -1,6 +1,7 @@
 import 'package:flatmates/const/colors.dart';
 import 'package:flatmates/pages/splash_page.dart';
 import 'package:flatmates/provider/flat_provider.dart';
+import 'package:flatmates/provider/socket_provider.dart';
 import 'package:flatmates/provider/user_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +22,9 @@ class FlatMates extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) => FlatProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => SocketProvider(),
         )
       ],
       child: MaterialApp(

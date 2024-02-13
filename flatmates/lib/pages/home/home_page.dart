@@ -2,7 +2,6 @@ import 'package:flatmates/const/colors.dart';
 import 'package:flatmates/const/font.dart';
 import 'package:flatmates/models/flat_model.dart';
 import 'package:flatmates/provider/flat_provider.dart';
-import 'package:flatmates/provider/socket_provider.dart';
 import 'package:flatmates/widget/home_page_filter_card_skelaton.dart';
 import 'package:flatmates/widget/home_page_flat_card_skelaton.dart';
 import 'package:flatmates/widget/home_page_flat_card.dart';
@@ -103,20 +102,13 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     filter = [sortByWidget, priceFilterWidget, preferenceWidget, clearWidget];
-    Provider.of<SocketProvider>(context, listen: false).connectToSocket();
-    // if (!Provider.of<FlatProvider>(context, listen: false).flatListFetched) {
-    //   Provider.of<FlatProvider>(context, listen: false)
-    //       .fetchAllFlats(false, "");
-    // }
+    if (!Provider.of<FlatProvider>(context, listen: false).flatListFetched) {
+      Provider.of<FlatProvider>(context, listen: false)
+          .fetchAllFlats(false, "");
+    }
   }
 
-  @override
-  void dispose() {
-    Provider.of<SocketProvider>(context, listen: false).disconnectToSocket();
-
-    super.dispose();
-  }
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -1,10 +1,11 @@
 import 'package:flatmates/const/colors.dart';
 import 'package:flatmates/const/font.dart';
 import 'package:flatmates/pages/chat/chat_page.dart';
-import 'package:flatmates/pages/home_page.dart';
+import 'package:flatmates/pages/home/home_page.dart';
 import 'package:flatmates/pages/profile/profile_page.dart';
 import 'package:flatmates/pages/shorlist_page.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unicons/unicons.dart';
 
 class CustomBottomNavigator extends StatefulWidget {
@@ -16,7 +17,19 @@ class CustomBottomNavigator extends StatefulWidget {
 
 class _CustomBottomNavigatorState extends State<CustomBottomNavigator> {
   int _currIndex = 0;
+  String? userId;
   final _pages = [HomePage(), ShortListPage(), ChatPage(), ProfilePage()];
+  void socketInit() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    userId = await sharedPreferences.getString("userId");
+  }
+
+  @override
+  void initState() {
+    super.initState();
+   
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

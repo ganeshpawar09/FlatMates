@@ -1,14 +1,26 @@
-import 'package:flatmates/const/colors.dart';
 import 'package:flatmates/const/font.dart';
 import 'package:flatmates/models/chat_model.dart';
 import 'package:flatmates/provider/chat_provider.dart';
 import 'package:flatmates/widget/chat_page_card.dart';
+import 'package:flatmates/widget/chat_page_card_skelaton.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:unicons/unicons.dart';
 
-class ChatPage extends StatelessWidget {
+class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
+
+  @override
+  State<ChatPage> createState() => _ChatPageState();
+}
+
+class _ChatPageState extends State<ChatPage> {
+  @override
+  void initState() {
+    super.initState();
+    
+    if (!Provider.of<ChatProvider>(context, listen: false).chatListFetched)
+      Provider.of<ChatProvider>(context, listen: false).fetchChat(false);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,28 +39,7 @@ class ChatPage extends StatelessWidget {
             return ListView.builder(
               itemCount: 10,
               itemBuilder: (context, index) {
-                return ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: customYellow,
-                    child: Text(
-                      "..",
-                      style: AppStyles.mondaB
-                          .copyWith(fontSize: 20, color: Colors.black),
-                    ),
-                  ),
-                  title: Text("...",
-                      style: AppStyles.mondaB
-                          .copyWith(fontSize: 18, color: Colors.black)),
-                  subtitle: Text('...',
-                      style: AppStyles.mondaN
-                          .copyWith(fontSize: 14, color: Colors.black87)),
-                  trailing: Icon(
-                    UniconsLine.angle_right,
-                    color: customYellow,
-                    size: 35,
-                  ),
-                  isThreeLine: true,
-                );
+                return ChatPageCardSkelaton();
               },
             );
           } else {

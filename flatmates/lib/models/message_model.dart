@@ -11,15 +11,15 @@ class Message {
 
   factory Message.fromJson(Map<String, dynamic> json) {
     return Message(
-      id: json['id'],
-      sender: json['sender'],
-      content: json['content'],
+      id: json['_id']??'',
+      sender: json['sender']??'',
+      content: json['content']??'',
     );
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {
-      'id': this.id,
+      '_id': this.id,
       'sender': this.sender,
       'content': this.content,
     };

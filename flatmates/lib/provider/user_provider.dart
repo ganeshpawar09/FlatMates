@@ -19,6 +19,7 @@ class UserProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         return true;
       }
+      ;
       return false;
     } catch (e) {
       print("$e");
@@ -41,11 +42,12 @@ class UserProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         bool result =
-            await pref.setString("user", jsonEncode(data['data']['user']));
+            await pref.setString("userName", data['data']['user']['name']);
         if (!result) {
           print("Something wrong while storing user in the local Device");
           return false;
         }
+
         result = await pref.setString("accessToken",
             data['data']['AccessToken'].toString().replaceAll('"', ''));
         if (!result) {
@@ -53,10 +55,9 @@ class UserProvider extends ChangeNotifier {
               "Something wrong while storing accessToken in the local Device");
           return false;
         }
-        result = await pref.setString(
-            "userId",
-            jsonEncode(
-                data['data']['user']['_id'].toString().replaceAll('"', '')));
+
+        result = await pref.setString("userId",
+            data['data']['user']['_id'].toString().replaceAll('"', ''));
         if (!result) {
           print("Something wrong while storing userId in the local Device");
           return false;

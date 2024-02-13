@@ -63,7 +63,7 @@ class HomePageFlatCardSkelaton extends StatelessWidget {
 
 Widget _buildShimmerContainer(double height, double width) {
   return Shimmer.fromColors(
-    baseColor: Colors.grey.shade200,
+    baseColor: Colors.grey.shade300,
     highlightColor: Colors.white,
     period: const Duration(milliseconds: 2000),
     child: Container(

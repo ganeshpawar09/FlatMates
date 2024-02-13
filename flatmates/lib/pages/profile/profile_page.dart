@@ -1,6 +1,6 @@
 import 'package:flatmates/const/colors.dart';
 import 'package:flatmates/const/font.dart';
-import 'package:flatmates/pages/home_page.dart';
+import 'package:flatmates/pages/home/home_page.dart';
 import 'package:flatmates/pages/profile/upload_new_request.dart';
 import 'package:flutter/material.dart';
 import 'package:unicons/unicons.dart';

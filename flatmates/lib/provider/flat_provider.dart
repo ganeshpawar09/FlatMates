@@ -53,6 +53,7 @@ class FlatProvider extends ChangeNotifier {
       final data = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
+
         List<Flat> temp = [];
         for (var element in data['data']) {
           Flat flat = Flat.fromJson(element);

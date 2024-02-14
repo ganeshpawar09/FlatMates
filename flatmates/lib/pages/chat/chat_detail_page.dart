@@ -7,6 +7,8 @@ import 'package:flatmates/widget/chat_detail_page_card.dart';
 import 'package:flatmates/widget/chat_detail_page_card_skelaton.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class ChatDetailPage extends StatefulWidget {
   final Chat chat;
@@ -17,11 +19,12 @@ class ChatDetailPage extends StatefulWidget {
 }
 
 class _ChatDetailPageState extends State<ChatDetailPage> {
-  TextEditingController _message = TextEditingController();
+  final TextEditingController _message = TextEditingController();
+  IO.Socket? socket;
   void send() async {
     String content = _message.text;
     if (content.isEmpty) {
-      SnackBar snackBar = SnackBar(content: Text("Message is empty"));
+      SnackBar snackBar = const SnackBar(content: Text("Message is empty"));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
       return;
     }
@@ -29,7 +32,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         .sendMessage(widget.chat.id, content);
 
     if (!send) {
-      SnackBar snackBar = SnackBar(content: Text("Something went wrong"));
+      SnackBar snackBar = const SnackBar(content: Text("Something went wrong"));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
     _message.text = "";
@@ -39,6 +42,66 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     String chatId = widget.chat.id;
     await Provider.of<ChatProvider>(context, listen: false)
         .fetchMessage(false, chatId);
+  }
+
+  void connectToSocket() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    String? userId = preferences.getString("userId");
+
+    try {
+      await socket!.connect();
+
+      socket!.onConnect((_) {
+        print('Socket connected. ID: ${socket!.id}');
+
+        print('Socket connected successfully.');
+        socket!
+            .emit("user_connect", {'userId': userId, 'chatId': widget.chat.id});
+        socket!.on("newMessage", (data) async {
+          print('New message received: $data');
+          Message message = Message.fromJson(data);
+          Provider.of<ChatProvider>(context, listen: false).addMessage(message);
+          print("hello");
+        });
+      });
+    } catch (e) {
+      print('Error connecting to socket: $e');
+    }
+  }
+
+  void sendMessageToSocket() async {
+    String content = _message.text;
+    if (content.isEmpty) {
+      SnackBar snackBar = const SnackBar(content: Text("Message is empty"));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      return;
+    }
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    String? senderId = preferences.getString("userId");
+    String chatId = widget.chat.id;
+    print(senderId);
+    print(chatId);
+    print(content);
+    socket!.emit("sendMessage", {
+      "senderId": senderId,
+      "chatId": chatId,
+      "content": content,
+    });
+
+    _message.text = "";
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    socket = IO.io('https://flatmates.onrender.com/', <String, dynamic>{
+      'transports': ['websocket'],
+      'autoConnect': false,
+    });
+    if (socket != null) {
+      connectToSocket();
+    }
   }
 
   @override
@@ -59,7 +122,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
             return Consumer<ChatProvider>(
               builder: (context, value, child) {
                 List<Message> message = value.messageList;
-                String userId = value.userId;
+                String userId = value.userIdFor;
                 if (message.isEmpty) {
                   return ChatDetailPageCardSkelaton();
                 } else {
@@ -134,7 +197,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
               color: customYellow,
             ),
             onPressed: () {
-              send();
+              sendMessageToSocket();
             },
           ),
         ],

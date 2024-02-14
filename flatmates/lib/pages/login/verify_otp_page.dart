@@ -1,6 +1,5 @@
 import 'package:flatmates/const/colors.dart';
 import 'package:flatmates/const/font.dart';
-import 'package:flatmates/pages/home/home_page.dart';
 import 'package:flatmates/pages/login/request_otp_page.dart';
 import 'package:flatmates/provider/user_provider.dart';
 import 'package:flatmates/widget/customBottomNavigator.dart';

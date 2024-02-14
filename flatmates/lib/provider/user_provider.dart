@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class UserProvider extends ChangeNotifier {
   Future<bool> sendOTPUser(String number) async {
     try {
-      final url = "$server/user/send-otp";
+      const url = "$server/user/send-otp";
       final response = await http.post(
         Uri.parse(url),
         body: {

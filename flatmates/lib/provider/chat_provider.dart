@@ -10,9 +10,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ChatProvider extends ChangeNotifier {
   List<Chat> chatList = [];
   bool chatListFetched = false;
-  String userId = "";
   List<Message> messageList = [];
   bool messageListFetched = false;
+  String userIdFor = "";
 
   Future<void> fetchChat(bool refresh) async {
     try {
@@ -21,7 +21,7 @@ class ChatProvider extends ChangeNotifier {
         notifyListeners();
       }
       SharedPreferences preferences = await SharedPreferences.getInstance();
-      final url = "$server/chat/fetch-chat";
+      const url = "$server/chat/fetch-chat";
       SharedPreferences pref = await SharedPreferences.getInstance();
       String? accessToken = await pref.getString("accessToken");
       String? userName = await pref.getString("userName");
@@ -46,11 +46,10 @@ class ChatProvider extends ChangeNotifier {
                 .replaceAll(" and ", "")
                 .replaceAll(userName, "");
           }
-
+          userIdFor = id;
           temp.add(chat);
         }
         chatList = temp;
-        userId = id;
         chatListFetched = true;
         notifyListeners();
       } else {
@@ -60,6 +59,13 @@ class ChatProvider extends ChangeNotifier {
       print("Something went wrong while loading data $e");
       return;
     }
+  }
+
+  Future<void> addMessage(Message message) async {
+    messageList.add(message);
+    print('Updated messageList: $messageList');
+    notifyListeners();
+    return;
   }
 
   Future<void> fetchMessage(bool refresh, String chatId) async {
@@ -101,9 +107,10 @@ class ChatProvider extends ChangeNotifier {
 
   Future<bool> sendMessage(String chatId, String content) async {
     try {
-      final url = "$server/chat/send-message";
+      const url = "$server/chat/send-message";
       SharedPreferences pref = await SharedPreferences.getInstance();
       String? accessToken = await pref.getString("accessToken");
+      String? userId = await pref.getString("userId");
       if (accessToken == null) {
         return false;
       }
@@ -130,6 +137,39 @@ class ChatProvider extends ChangeNotifier {
     } catch (e) {
       print("Something went wrong while loading data $e");
       return false;
+    }
+  }
+
+  Future<Chat?> createNewChat(String ownerId, String flatId) async {
+    try {
+      final url = "$server/chat/create-chat";
+      SharedPreferences pref = await SharedPreferences.getInstance();
+      String? accessToken = await pref.getString("accessToken");
+      String? userId = await pref.getString("userId");
+      if (accessToken == null) {
+        return null;
+      }
+
+      final response = await http.post(Uri.parse(url), headers: {
+        "Authorization": accessToken,
+      }, body: {
+        "userId": userId,
+        "ownerId": ownerId,
+        "flatId": flatId,
+      });
+      final data = jsonDecode(response.body);
+      print(data);
+      if (response.statusCode == 200) {
+        Chat chat = Chat.fromJson(data['data']);
+
+        return chat;
+      } else {
+        print("Something went wrong");
+        return null;
+      }
+    } catch (e) {
+      print("Something went wrong while loading data $e");
+      return null;
     }
   }
 }

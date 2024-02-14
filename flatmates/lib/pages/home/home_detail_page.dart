@@ -1,7 +1,11 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flatmates/const/colors.dart';
 import 'package:flatmates/const/font.dart';
+import 'package:flatmates/models/chat_model.dart';
 import 'package:flatmates/models/flat_model.dart';
+import 'package:flatmates/pages/chat/chat_detail_page.dart';
+import 'package:flatmates/pages/chat/chat_page.dart';
+import 'package:flatmates/provider/chat_provider.dart';
 import 'package:flatmates/provider/flat_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -25,6 +29,22 @@ class _HomeDetailPageState extends State<HomeDetailPage> {
     } else {
       await Provider.of<FlatProvider>(context, listen: false)
           .addFlatToFavourite(flatId);
+    }
+  }
+
+  void sendTochat(String ownerId, String flatId) async {
+    Chat? chat = await Provider.of<ChatProvider>(context, listen: false)
+        .createNewChat(ownerId, flatId);
+    if (chat != null) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => ChatDetailPage(
+                    chat: chat,
+                  )));
+    } else {
+      SnackBar snackBar = SnackBar(content: Text("Something went wrong"));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
   }
 
@@ -60,9 +80,7 @@ class _HomeDetailPageState extends State<HomeDetailPage> {
     final flat = widget.flat;
     final images = flat.flatPhotos;
     String buildingName = flat.buildingName;
-    String cityName = flat.city;
     String address = flat.address;
-    String preference = flat.flatmatePreference;
     int rent = flat.rent;
     bool favorite = flat.favourite;
 
@@ -253,7 +271,9 @@ class _HomeDetailPageState extends State<HomeDetailPage> {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(5)),
               minimumSize: const Size(200, 40)),
-          onPressed: () {},
+          onPressed: () {
+            sendTochat(widget.flat.ownerId, widget.flat.id);
+          },
           child: Text(
             "Chat To Owner",
             style: AppStyles.mondaB.copyWith(

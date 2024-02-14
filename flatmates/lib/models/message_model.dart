@@ -1,28 +1,19 @@
 class Message {
-  String id;
-  String sender;
-  String content;
+  final String sender;
+  final String content;
+  final String id;
 
   Message({
-    required this.id,
     required this.sender,
     required this.content,
+    required this.id,
   });
 
   factory Message.fromJson(Map<String, dynamic> json) {
     return Message(
-      id: json['_id']??'',
-      sender: json['sender']??'',
-      content: json['content']??'',
+      sender: json['sender'],
+      content: json['content'],
+      id: json['_id'],
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {
-      '_id': this.id,
-      'sender': this.sender,
-      'content': this.content,
-    };
-    return data;
   }
 }

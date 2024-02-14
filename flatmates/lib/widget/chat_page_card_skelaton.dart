@@ -33,7 +33,7 @@ Widget _buildShimmerContainer(double height, double width) {
           ),
         ),
       ),
-      SizedBox(
+      const SizedBox(
         height: 3,
       )
     ],

@@ -4,11 +4,11 @@ import 'package:flatmates/const/font.dart';
 import 'package:flatmates/models/chat_model.dart';
 import 'package:flatmates/models/flat_model.dart';
 import 'package:flatmates/pages/chat/chat_detail_page.dart';
-import 'package:flatmates/pages/chat/chat_page.dart';
 import 'package:flatmates/provider/chat_provider.dart';
 import 'package:flatmates/provider/flat_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:unicons/unicons.dart';
 
@@ -32,19 +32,41 @@ class _HomeDetailPageState extends State<HomeDetailPage> {
     }
   }
 
+  void showSnackBarOnPage(String content) {
+    SnackBar snackBar = SnackBar(content: Text(content));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
   void sendTochat(String ownerId, String flatId) async {
-    Chat? chat = await Provider.of<ChatProvider>(context, listen: false)
-        .createNewChat(ownerId, flatId);
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String? userId = sharedPreferences.getString("userId");
+    String? userName = sharedPreferences.getString("userName");
+    if (userId == ownerId) {
+      showSnackBarOnPage("Your are the owner");
+    }
+    Chat? chat;
+    if (mounted) {
+      chat = await Provider.of<ChatProvider>(context, listen: false)
+          .createNewChat(ownerId, flatId);
+    }
+
     if (chat != null) {
-      Navigator.push(
+      if (mounted) {
+        chat.name = chat.name
+            .toString()
+            .replaceAll(" and ", "")
+            .replaceAll(userName!, "");
+        Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => ChatDetailPage(
-                    chat: chat,
-                  )));
+            builder: (context) => ChatDetailPage(
+              chat: chat!,
+            ),
+          ),
+        );
+      }
     } else {
-      SnackBar snackBar = SnackBar(content: Text("Something went wrong"));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      showSnackBarOnPage("Something went wrong");
     }
   }
 
@@ -52,7 +74,6 @@ class _HomeDetailPageState extends State<HomeDetailPage> {
   @override
   void initState() {
     super.initState();
-    timepass(widget.flat);
   }
 
   void timepass(Flat flat) {
@@ -88,7 +109,7 @@ class _HomeDetailPageState extends State<HomeDetailPage> {
       appBar: AppBar(
         elevation: 0,
         leading: IconButton(
-          icon: Icon(
+          icon: const Icon(
             Icons.arrow_back_ios_new,
             size: 25,
           ),
@@ -101,12 +122,12 @@ class _HomeDetailPageState extends State<HomeDetailPage> {
             children: [
               IconButton(
                 icon: (favorite)
-                    ? Icon(
+                    ? const Icon(
                         Icons.favorite,
                         size: 30,
                         color: Colors.red,
                       )
-                    : Icon(
+                    : const Icon(
                         UniconsLine.heart_alt,
                         size: 30,
                       ),
@@ -119,7 +140,7 @@ class _HomeDetailPageState extends State<HomeDetailPage> {
                   );
                 },
               ),
-              SizedBox(
+              const SizedBox(
                 width: 30,
               ),
             ],
@@ -128,7 +149,7 @@ class _HomeDetailPageState extends State<HomeDetailPage> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,7 +176,7 @@ class _HomeDetailPageState extends State<HomeDetailPage> {
                         child: Image.network(
                           images[index],
                           errorBuilder: (context, error, stackTrace) {
-                            return Text("Not Available");
+                            return const Text("Not Available");
                           },
                           fit: BoxFit.cover,
                           width: double.infinity,

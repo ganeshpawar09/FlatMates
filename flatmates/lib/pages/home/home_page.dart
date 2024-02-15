@@ -2,9 +2,9 @@ import 'package:flatmates/const/colors.dart';
 import 'package:flatmates/const/font.dart';
 import 'package:flatmates/models/flat_model.dart';
 import 'package:flatmates/provider/flat_provider.dart';
-import 'package:flatmates/widget/home_page_filter_card_skelaton.dart';
-import 'package:flatmates/widget/home_page_flat_card_skelaton.dart';
-import 'package:flatmates/widget/home_page_flat_card.dart';
+import 'package:flatmates/pages/home/widget/home_page_filter_card_skelaton.dart';
+import 'package:flatmates/pages/home/widget/home_page_flat_card_skelaton.dart';
+import 'package:flatmates/pages/home/widget/home_page_flat_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:unicons/unicons.dart';
@@ -27,6 +27,8 @@ class _HomePageState extends State<HomePage> {
   bool isforgirls = false;
   bool isPrice = false;
   bool isSearch = false;
+
+  bool isRefreshing = false;
 
   String sortby = "lowtohigh";
   String faltmatePreference = "any";
@@ -75,40 +77,52 @@ class _HomePageState extends State<HomePage> {
     await flatProvider.fetchAllFlats(!isLoadMore, filterString);
   }
 
-  Future<void> fetch() async {
-    await Provider.of<FlatProvider>(context, listen: false)
-        .fetchAllFlats(true, "");
+  Future<void> fetch(bool isRefresh) async {
+    try {
+      if (isRefresh) {
+        await Provider.of<FlatProvider>(context, listen: false)
+            .fetchAllFlats(true, "");
+      } else {
+        if (!Provider.of<FlatProvider>(context, listen: false)
+            .flatListFetched) {
+          await Provider.of<FlatProvider>(context, listen: false)
+              .fetchAllFlats(false, "");
+        }
+      }
+    } catch (e) {
+      showSnackBarOnPage("Something went wrong while fetching flats");
+    }
   }
 
-  void connectToServer() async {
-    socket = IO.io('https://flatmates.onrender.com/', <String, dynamic>{
-      'transports': ['websocket'],
-      'autoConnect': false,
-    });
-
-    socket.onConnect((_) {
-      print('Connected to server');
-      print('Socket ID: ${socket.id}');
-    });
-
-    socket.onDisconnect((_) {
-      print('Disconnected from server');
-    });
-
-    await socket.connect();
+  void showSnackBarOnPage(String content) {
+    SnackBar snackBar = SnackBar(content: Text(content));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
+
+  // void connectToServer() async {
+  //   socket = IO.io('https://flatmates.onrender.com/', <String, dynamic>{
+  //     'transports': ['websocket'],
+  //     'autoConnect': false,
+  //   });
+
+  //   socket.onConnect((_) {
+  //     print('Connected to server');
+  //     print('Socket ID: ${socket.id}');
+  //   });
+
+  //   socket.onDisconnect((_) {
+  //     print('Disconnected from server');
+  //   });
+
+  //   await socket.connect();
+  // }
 
   @override
   void initState() {
     super.initState();
     filter = [sortByWidget, priceFilterWidget, preferenceWidget, clearWidget];
-    if (!Provider.of<FlatProvider>(context, listen: false).flatListFetched) {
-      Provider.of<FlatProvider>(context, listen: false)
-          .fetchAllFlats(false, "");
-    }
   }
 
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -156,8 +170,8 @@ class _HomePageState extends State<HomePage> {
           : AppBar(
               elevation: 0,
               title: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: TextField()),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: const TextField()),
               actions: [
                 IconButton(
                   onPressed: () {
@@ -179,12 +193,19 @@ class _HomePageState extends State<HomePage> {
       body: RefreshIndicator(
         color: Colors.black,
         onRefresh: () async {
-          fetch();
+          setState(() {
+            isRefreshing = true;
+          });
+          await fetch(true);
+          setState(() {
+            isRefreshing = false;
+          });
         },
-        child: Consumer<FlatProvider>(
-          builder: (context, value, child) {
-            List<Flat> flats = value.flatList;
-            if (flats.isEmpty) {
+        child: FutureBuilder<void>(
+          future: fetch(false),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting ||
+                isRefreshing) {
               return Column(
                 children: [
                   SizedBox(
@@ -193,7 +214,7 @@ class _HomePageState extends State<HomePage> {
                       scrollDirection: Axis.horizontal,
                       itemCount: 5,
                       itemBuilder: (context, index) {
-                        return HomePageFilterCardSkelaton();
+                        return const HomePageFilterCardSkelaton();
                       },
                     ),
                   ),
@@ -201,60 +222,80 @@ class _HomePageState extends State<HomePage> {
                     child: ListView.builder(
                       itemCount: 10,
                       itemBuilder: (context, index) {
-                        return HomePageFlatCardSkelaton();
+                        return const HomePageFlatCardSkelaton();
                       },
                     ),
                   )
                 ],
               );
+            } else if (snapshot.connectionState == ConnectionState.done) {
+              return Consumer<FlatProvider>(
+                builder: (context, value, child) {
+                  List<Flat> flats = value.flatList;
+                  if (flats.isEmpty) {
+                    return const Center(
+                      child: Text("No data "),
+                    );
+                  } else {
+                    return Column(
+                      children: [
+                        SizedBox(
+                          height: 50,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: filter.length,
+                            itemBuilder: (context, index) {
+                              return filter[index]();
+                            },
+                          ),
+                        ),
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: flats.length + 1,
+                            itemBuilder: (context, index) {
+                              return (index == flats.length)
+                                  ? Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 30, vertical: 30),
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                            backgroundColor: customYellow,
+                                            side: BorderSide.none,
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(5)),
+                                            minimumSize: const Size(200, 40)),
+                                        onPressed: () {
+                                          filterFetch(true);
+                                        },
+                                        child: Text(
+                                          "Load More",
+                                          style: AppStyles.mondaB.copyWith(
+                                            color: Colors.black,
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  : HomePageFlatCard(
+                                      flat: flats[index],
+                                    );
+                            },
+                          ),
+                        )
+                      ],
+                    );
+                  }
+                },
+              );
             } else {
-              return Column(
-                children: [
-                  SizedBox(
-                    height: 50,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: filter.length,
-                      itemBuilder: (context, index) {
-                        return filter[index]();
-                      },
-                    ),
-                  ),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: flats.length + 1,
-                      itemBuilder: (context, index) {
-                        return (index == flats.length)
-                            ? Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 30, vertical: 30),
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                      backgroundColor: customYellow,
-                                      side: BorderSide.none,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(5)),
-                                      minimumSize: const Size(200, 40)),
-                                  onPressed: () {
-                                    filterFetch(true);
-                                  },
-                                  child: Text(
-                                    "Load More",
-                                    style: AppStyles.mondaB.copyWith(
-                                      color: Colors.black,
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                ),
-                              )
-                            : HomePageFlatCard(
-                                flat: flats[index],
-                              );
-                      },
-                    ),
-                  )
-                ],
+              return Center(
+                child: TextButton(
+                  onPressed: () {
+                    fetch(true);
+                  },
+                  child: Text("Refresh"),
+                ),
               );
             }
           },
@@ -265,8 +306,8 @@ class _HomePageState extends State<HomePage> {
 
   Widget sortByWidget() {
     return Container(
-      margin: EdgeInsets.only(left: 8, top: 5, bottom: 5),
-      padding: EdgeInsets.only(right: 5, left: 10, top: 5, bottom: 5),
+      margin: const EdgeInsets.only(left: 8, top: 5, bottom: 5),
+      padding: const EdgeInsets.only(right: 5, left: 10, top: 5, bottom: 5),
       decoration: BoxDecoration(
         border: Border.all(
           color: (ishightolow || islowtohigh) ? customYellow : Colors.black,

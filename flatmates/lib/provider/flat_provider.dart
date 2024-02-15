@@ -53,7 +53,6 @@ class FlatProvider extends ChangeNotifier {
       final data = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
-
         List<Flat> temp = [];
         for (var element in data['data']) {
           Flat flat = Flat.fromJson(element);
@@ -79,7 +78,7 @@ class FlatProvider extends ChangeNotifier {
         notifyListeners();
       }
       SharedPreferences preferences = await SharedPreferences.getInstance();
-      final url = "$server/flat/fetch-favourite-flat";
+      const url = "$server/flat/fetch-favourite-flat";
       SharedPreferences pref = await SharedPreferences.getInstance();
       String? accessToken = await pref.getString("accessToken");
       if (accessToken == null) {
@@ -136,7 +135,6 @@ class FlatProvider extends ChangeNotifier {
         Flat flat = Flat.fromJson(responseData);
 
         favflatList.add(flat);
-        notifyListeners();
         notifyListeners();
         return true;
       } else {

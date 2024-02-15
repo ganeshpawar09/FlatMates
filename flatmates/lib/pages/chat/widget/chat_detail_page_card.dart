@@ -14,7 +14,7 @@ class ChatDetailPageCard extends StatelessWidget {
       alignment: isUserMessage ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         width: 180,
-        margin: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
         padding: EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: isUserMessage ? customYellow : Colors.black54,

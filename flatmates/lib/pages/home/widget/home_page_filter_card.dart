@@ -5,13 +5,11 @@ class HomePageFilterCard extends StatelessWidget {
   final String title;
   const HomePageFilterCard({super.key, required this.title});
 
-  
-
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(left: 8, top: 5, bottom: 5),
-      padding: EdgeInsets.only(right: 15, left: 15, top: 5, bottom: 5),
+      margin: const EdgeInsets.only(left: 8, top: 5, bottom: 5),
+      padding: const EdgeInsets.only(right: 15, left: 15, top: 5, bottom: 5),
       decoration: BoxDecoration(
           border: Border.all(
             color: Colors.black,

@@ -1,5 +1,5 @@
+import 'package:flatmates/widget/skelaton_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:shimmer/shimmer.dart';
 
 class HomePageFlatCardSkelaton extends StatelessWidget {
   const HomePageFlatCardSkelaton({super.key});
@@ -14,37 +14,37 @@ class HomePageFlatCardSkelaton extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20), color: Colors.white),
-          child: Column(
+          child:const  Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildShimmerContainer(180, double.infinity),
+               SkelatonWidget(height:180,width: double.infinity),
               Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                     EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildShimmerContainer(30, 250),
+                    SkelatonWidget(height:30, width:250),
                     SizedBox(
                       height: 8,
                     ),
-                    _buildShimmerContainer(30, 150),
+                    SkelatonWidget(height:30, width:150),
                     SizedBox(
                       height: 3,
                     ),
-                    _buildShimmerContainer(30, 180),
+                    SkelatonWidget(height:30, width:180),
                     SizedBox(
                       height: 3,
                     ),
-                    _buildShimmerContainer(30, 230),
+                    SkelatonWidget(height:30, width:230),
                     SizedBox(
                       height: 8,
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        _buildShimmerContainer(40, 150),
+                        SkelatonWidget(height:40, width:150),
                         SizedBox(
                           width: 10,
                         )
@@ -61,18 +61,4 @@ class HomePageFlatCardSkelaton extends StatelessWidget {
   }
 }
 
-Widget _buildShimmerContainer(double height, double width) {
-  return Shimmer.fromColors(
-    baseColor: Colors.grey.shade300,
-    highlightColor: Colors.white,
-    period: const Duration(milliseconds: 2000),
-    child: Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: Colors.grey.shade300,
-      ),
-    ),
-  );
-}
+

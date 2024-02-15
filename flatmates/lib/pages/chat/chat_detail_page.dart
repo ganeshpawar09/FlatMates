@@ -2,9 +2,10 @@ import 'package:flatmates/const/colors.dart';
 import 'package:flatmates/const/font.dart';
 import 'package:flatmates/models/chat_model.dart';
 import 'package:flatmates/models/message_model.dart';
+import 'package:flatmates/pages/chat/widget/chat_detail_page_card.dart';
+import 'package:flatmates/pages/chat/widget/chat_detail_page_card_skelaton.dart';
 import 'package:flatmates/provider/chat_provider.dart';
-import 'package:flatmates/widget/chat_detail_page_card.dart';
-import 'package:flatmates/widget/chat_detail_page_card_skelaton.dart';
+import 'package:flatmates/provider/socket_io.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,23 +21,24 @@ class ChatDetailPage extends StatefulWidget {
 
 class _ChatDetailPageState extends State<ChatDetailPage> {
   final TextEditingController _message = TextEditingController();
-  IO.Socket? socket;
-  void send() async {
-    String content = _message.text;
-    if (content.isEmpty) {
-      SnackBar snackBar = const SnackBar(content: Text("Message is empty"));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      return;
-    }
-    bool send = await Provider.of<ChatProvider>(context, listen: false)
-        .sendMessage(widget.chat.id, content);
 
-    if (!send) {
-      SnackBar snackBar = const SnackBar(content: Text("Something went wrong"));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    }
-    _message.text = "";
-  }
+  // IO.Socket? socket;
+  // void send() async {
+  //   String content = _message.text;
+  //   if (content.isEmpty) {
+  //     SnackBar snackBar = const SnackBar(content: Text("Message is empty"));
+  //     ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  //     return;
+  //   }
+  //   bool send = await Provider.of<ChatProvider>(context, listen: false)
+  //       .sendMessage(widget.chat.id, content);
+
+  //   if (!send) {
+  //     SnackBar snackBar = const SnackBar(content: Text("Something went wrong"));
+  //     ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  //   }
+  //   _message.text = "";
+  // }
 
   Future<void> fetch() async {
     String chatId = widget.chat.id;
@@ -44,31 +46,54 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         .fetchMessage(false, chatId);
   }
 
-  void connectToSocket() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    String? userId = preferences.getString("userId");
+  // void connectToSocket() async {
+  //   SharedPreferences preferences = await SharedPreferences.getInstance();
+  //   String? userId = preferences.getString("userId");
 
-    try {
-      await socket!.connect();
+  //   try {
+  //     await socket!.connect();
 
-      socket!.onConnect((_) {
-        print('Socket connected. ID: ${socket!.id}');
+  //     socket!.onConnect((_) {
+  //       print('Socket connected. ID: ${socket!.id}');
 
-        print('Socket connected successfully.');
-        socket!
-            .emit("user_connect", {'userId': userId, 'chatId': widget.chat.id});
-        socket!.on("newMessage", (data) async {
-          print('New message received: $data');
-          Message message = Message.fromJson(data);
-          Provider.of<ChatProvider>(context, listen: false).addMessage(message);
-          print("hello");
-        });
-      });
-    } catch (e) {
-      print('Error connecting to socket: $e');
-    }
-  }
+  //       print('Socket connected successfully.');
+  //       socket!
+  //           .emit("user_connect", {'userId': userId, 'chatId': widget.chat.id});
+  //       socket!.on("newMessage", (data) async {
+  //         print('New message received: $data');
 
+  //         Message message = Message.fromJson(data);
+
+  //         Provider.of<ChatProvider>(context, listen: false).addMessage(message);
+  //         print("hello");
+  //       });
+  //     });
+  //   } catch (e) {
+  //     print('Error connecting to socket: $e');
+  //   }
+  // }
+
+  // void sendMessageToSocket() async {
+  //   String content = _message.text;
+  //   if (content.isEmpty) {
+  //     SnackBar snackBar = const SnackBar(content: Text("Message is empty"));
+  //     ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  //     return;
+  //   }
+  //   SharedPreferences preferences = await SharedPreferences.getInstance();
+  //   String? senderId = preferences.getString("userId");
+  //   String chatId = widget.chat.id;
+  //   print(senderId);
+  //   print(chatId);
+  //   print(content);
+  //   socket!.emit("sendMessage", {
+  //     "senderId": senderId,
+  //     "chatId": chatId,
+  //     "content": content,
+  //   });
+
+  //   _message.text = "";
+  // }
   void sendMessageToSocket() async {
     String content = _message.text;
     if (content.isEmpty) {
@@ -76,17 +101,8 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
       return;
     }
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    String? senderId = preferences.getString("userId");
-    String chatId = widget.chat.id;
-    print(senderId);
-    print(chatId);
-    print(content);
-    socket!.emit("sendMessage", {
-      "senderId": senderId,
-      "chatId": chatId,
-      "content": content,
-    });
+    await Provider.of<SocketIo>(context, listen: false)
+        .sendMessageToSocket(context, _message.text, widget.chat.id);
 
     _message.text = "";
   }
@@ -95,13 +111,13 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   void initState() {
     super.initState();
 
-    socket = IO.io('https://flatmates.onrender.com/', <String, dynamic>{
-      'transports': ['websocket'],
-      'autoConnect': false,
-    });
-    if (socket != null) {
-      connectToSocket();
-    }
+    // socket = IO.io('https://flatmates.onrender.com/', <String, dynamic>{
+    //   'transports': ['websocket'],
+    //   'autoConnect': false,
+    // });
+    // if (socket != null) {
+    //   connectToSocket();
+    // }
   }
 
   @override
@@ -123,30 +139,25 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
               builder: (context, value, child) {
                 List<Message> message = value.messageList;
                 String userId = value.userIdFor;
-                if (message.isEmpty) {
-                  return ChatDetailPageCardSkelaton();
-                } else {
-                  return Column(
-                    children: [
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: message.length,
-                          itemBuilder: (context, index) {
-                            return ChatDetailPageCard(
-                                message: message[index].content,
-                                isUserMessage: message[index].sender == userId);
-                          },
-                        ),
+                return Column(
+                  children: [
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: message.length,
+                        itemBuilder: (context, index) {
+                          return ChatDetailPageCard(
+                              message: message[index].content,
+                              isUserMessage: message[index].sender == userId);
+                        },
                       ),
-                      _buildMessageInput(),
-                    ],
-                  );
-                }
+                    ),
+                    _buildMessageInput(),
+                  ],
+                );
               },
             );
           } else {
-            // Return a loading indicator or placeholder while waiting for data
-            return ChatDetailPageCardSkelaton();
+            return const ChatDetailPageCardSkelaton();
           }
         },
       ),
@@ -155,7 +166,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
   Widget _buildMessageInput() {
     return Container(
-      padding: EdgeInsets.only(
+      padding: const EdgeInsets.only(
         right: 20,
         left: 20,
         bottom: 10,
@@ -173,7 +184,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                 fontWeight: FontWeight.bold,
               ),
               decoration: InputDecoration(
-                focusedBorder: OutlineInputBorder(
+                focusedBorder: const OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10)),
                   borderSide: BorderSide(color: Colors.black),
                 ),
@@ -183,7 +194,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
                 ),
-                border: OutlineInputBorder(
+                border: const OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10)),
                 ),
                 contentPadding: EdgeInsets.symmetric(horizontal: 15),

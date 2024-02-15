@@ -45,17 +45,17 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> filterFetch(bool isLoadMore) async {
+    print(!isLoadMore);
     FlatProvider flatProvider =
         Provider.of<FlatProvider>(context, listen: false);
     if (!isLoadMore) {
       setState(() {
         isRefreshing = true;
       });
-      flatProvider.flatPage = 0;
     }
-    String filterString =
-        "?page=${flatProvider.flatPage}&limit=${flatProvider.flatPageLimit}";
 
+    String filterString = "";
+    print(filterString);
     if (ishightolow || islowtohigh) {
       filterString += "&sortby=$sortby";
     }
@@ -72,14 +72,12 @@ class _HomePageState extends State<HomePage> {
       filterString += "&search=$search";
     }
 
-    if (!isLoadMore) {
-      flatProvider.flatPage = 0;
-    }
-
     await flatProvider.fetchAllFlats(!isLoadMore, filterString);
-    setState(() {
-      isRefreshing = false;
-    });
+    if (isRefreshing) {
+      setState(() {
+        isRefreshing = false;
+      });
+    }
   }
 
   Future<void> fetch(bool isRefresh) async {

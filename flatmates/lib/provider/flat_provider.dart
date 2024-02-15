@@ -35,16 +35,18 @@ class FlatProvider extends ChangeNotifier {
   Future<void> fetchAllFlats(bool refresh, String filter) async {
     try {
       if (refresh) {
+        flatPage = 0;
         flatList = [];
         notifyListeners();
       }
       print("fetching started");
 
       SharedPreferences preferences = await SharedPreferences.getInstance();
-      var url = "$server/flat/fetch-flat";
+      var url = "$server/flat/fetch-flat?page=$flatPage&limit=$flatPageLimit";
       if (filter.isNotEmpty) {
         url += filter;
       }
+      
       print(url);
       SharedPreferences pref = await SharedPreferences.getInstance();
       String? accessToken = await pref.getString("accessToken");
@@ -66,8 +68,8 @@ class FlatProvider extends ChangeNotifier {
           temp.add(flat);
         }
         flatList.addAll(temp);
-        _flatListFetched = true;
         flatPage = flatPage + 1;
+        _flatListFetched = true;
         notifyListeners();
       } else {
         print("Something went wrong");

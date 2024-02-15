@@ -17,8 +17,8 @@ class _RequestOTPPageState extends State<RequestOTPPage> {
   final FocusNode _focusNode = FocusNode();
   void requestOTP(String number) async {
     if (number.length != 10) {
-      final snackBar = SnackBar(
-        content: const Text('Invalid Mobile Number'),
+      const snackBar = SnackBar(
+        content: Text('Invalid Mobile Number'),
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
       return;
@@ -28,16 +28,17 @@ class _RequestOTPPageState extends State<RequestOTPPage> {
 
     if (send) {
       print("hello");
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) =>
-              VerifyOTPPage( number: "+91$number"),
-        ),
-      );
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => VerifyOTPPage(number: "+91$number"),
+          ),
+        );
+      }
     } else {
-      final snackBar = SnackBar(
-        content: const Text('Something went wrong Try Again'),
+      const snackBar = SnackBar(
+        content: Text('Something went wrong Try Again'),
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
@@ -60,96 +61,126 @@ class _RequestOTPPageState extends State<RequestOTPPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
-        child: Column(children: [
-          const SizedBox(
-            height: 80,
-          ),
-          Image.asset(
-            "assets/images/send.png",
-            height: 200,
-            width: 200,
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          Text(
-            "Verify Mobile Number",
-            style: AppStyles.mondaB.copyWith(
-                fontSize: 20, color: Colors.black, fontWeight: FontWeight.bold),
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-            child: Text(
-              "We will send you OTP on the mobile number",
-              textAlign: TextAlign.center,
-              style:
-                  AppStyles.mondaN.copyWith(fontSize: 16, color: Colors.black),
+        child: Column(
+          children: [
+            const SizedBox(
+              height: 80,
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 30,
+            Image.asset(
+              "assets/images/send.png",
+              height: 200,
+              width: 200,
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            Text(
+              "Verify Mobile Number",
+              style: AppStyles.mondaB.copyWith(
+                  fontSize: 20,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+              child: Text(
+                "We will send you OTP on the mobile number",
+                textAlign: TextAlign.center,
+                style: AppStyles.mondaN
+                    .copyWith(fontSize: 16, color: Colors.black),
               ),
-              decoration: BoxDecoration(
-                  border: Border.all(color: Colors.black),
-                  borderRadius: BorderRadius.circular(10),
-                  color: Colors.white),
-              child: Row(
-                children: [
-                  Text(
-                    " +91   ",
-                    style: AppStyles.mondaB.copyWith(
-                      color: Colors.black,
-                      fontSize: 19,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 30,
+                ),
+                decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black),
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.white),
+                child: Row(
+                  children: [
+                    Column(
+                      children: [
+                        Text(
+                          " +91   ",
+                          style: AppStyles.mondaB.copyWith(
+                            color: Colors.black,
+                            fontSize: 19,
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 8,
+                        )
+                      ],
                     ),
-                  ),
-                  Expanded(
-                    child: TextField(
-                      focusNode: _focusNode,
-                      keyboardType: TextInputType.number,
-                      controller: _mobileNumber,
-                      cursorColor: Colors.black,
+                    Expanded(
+                      child: TextField(
+                        focusNode: _focusNode,
+                        maxLength: 10,
+                        keyboardType: TextInputType.number,
+                        controller: _mobileNumber,
+                        cursorColor: Colors.black,
+                        style: AppStyles.mondaB.copyWith(
+                          color: Colors.black,
+                          fontSize: 19,
+                        ),
+                        decoration: InputDecoration(
+                            hintText: "0000000000",
+                            counter: const SizedBox(
+                              height: 0,
+                              width: 0,
+                            ),
+                            hintStyle: AppStyles.mondaB.copyWith(
+                                color: Colors.black45,
+                                fontSize: 19,
+                                fontWeight: FontWeight.bold),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.zero),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: customYellow,
+                  side: BorderSide.none,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5)),
+                  minimumSize: const Size(200, 40)),
+              onPressed: () {
+                _focusNode.unfocus();
+
+                requestOTP(_mobileNumber.text);
+              },
+              child: Consumer<UserProvider>(
+                builder: (context, value, child) {
+                  if (value.isloading) {
+                    return const SizedBox(
+                      height: 30,
+                      width: 30,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                      ),
+                    );
+                  } else {
+                    return Text(
+                      "Request OTP",
                       style: AppStyles.mondaB.copyWith(
                         color: Colors.black,
-                        fontSize: 19,
+                        fontSize: 18,
                       ),
-                      decoration: InputDecoration(
-                          hintText: "0000000000",
-                          hintStyle: AppStyles.mondaB.copyWith(
-                              color: Colors.black45,
-                              fontSize: 19,
-                              fontWeight: FontWeight.bold),
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.zero),
-                    ),
-                  ),
-                ],
+                    );
+                  }
+                },
               ),
-            ),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-                backgroundColor: customYellow,
-                side: BorderSide.none,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5)),
-                minimumSize: const Size(200, 40)),
-            onPressed: () {
-              _focusNode.unfocus();
-
-              requestOTP(_mobileNumber.text);
-            },
-            child: Text(
-              "Request OTP",
-              style: AppStyles.mondaB.copyWith(
-                color: Colors.black,
-                fontSize: 18,
-              ),
-            ),
-          )
-        ]),
+            )
+          ],
+        ),
       ),
     );
   }

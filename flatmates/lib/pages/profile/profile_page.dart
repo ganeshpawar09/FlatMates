@@ -1,12 +1,36 @@
 import 'package:flatmates/const/colors.dart';
 import 'package:flatmates/const/font.dart';
 import 'package:flatmates/pages/home/home_page.dart';
+import 'package:flatmates/pages/profile/own_flat_page.dart';
+import 'package:flatmates/pages/profile/update_user_page.dart';
 import 'package:flatmates/pages/profile/upload_new_request.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unicons/unicons.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  String? userName = "User100";
+  String? phoneNumber = "";
+  void getUser() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+
+    userName = preferences.getString("userName");
+    phoneNumber = preferences.getString("phoneNumber");
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getUser();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,23 +71,28 @@ class ProfilePage extends StatelessWidget {
                 height: 5,
               ),
               Text(
-                "User100",
+                "$userName",
                 style: AppStyles.mondaB,
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
-              customCard(context, UploadNewRequest(), UniconsLine.edit_alt,
+              customCard(
+                  context,
+                  UpdateUserPage(
+                    userName: userName ?? "",
+                    phoneNumber: phoneNumber ?? "",
+                  ),
+                  UniconsLine.edit_alt,
                   "Edit Profile"),
               customCard(context, UploadNewRequest(), UniconsLine.plus_circle,
                   "New Request"),
               customCard(
-                  context, HomePage(), UniconsLine.bolt, "Your Requests"),
-              customCard(context, HomePage(), UniconsLine.setting, "Setting"),
+                  context, OwnFlatPage(), UniconsLine.bolt, "Your Requests"),
+              customCard(context, null, UniconsLine.setting, "Setting"),
+              customCard(context, null, UniconsLine.question_circle, "Help"),
               customCard(
-                  context, HomePage(), UniconsLine.question_circle, "Help"),
-              customCard(
-                  context, HomePage(), UniconsLine.file_alt, "Privacy Policys"),
+                  context, null, UniconsLine.file_alt, "Privacy Policys"),
               SizedBox(
                 height: 30,
               ),

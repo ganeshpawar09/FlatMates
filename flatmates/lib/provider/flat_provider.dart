@@ -12,6 +12,9 @@ class FlatProvider extends ChangeNotifier {
   bool _flatListFetched = false;
   bool _favFlatListFetched = false;
 
+  List<Flat> ownFlatList = [];
+  bool _ownFlatListFetched = false;
+
   int flatPage = 0;
   int flatPageLimit = 2;
   int favFlatPage = 0;
@@ -19,6 +22,10 @@ class FlatProvider extends ChangeNotifier {
 
   get flatListFetched {
     return _flatListFetched;
+  }
+
+  get ownFlatListFetched {
+    return _ownFlatListFetched;
   }
 
   get favFlatListFetched {
@@ -100,6 +107,45 @@ class FlatProvider extends ChangeNotifier {
         }
         favflatList = temp;
         _favFlatListFetched = true;
+        notifyListeners();
+      } else {
+        print("Something went wrong");
+      }
+    } catch (e) {
+      print("Something went wrong while loading data $e");
+      return;
+    }
+  }
+
+  Future<void> fetchAllOwnFlats(bool refresh) async {
+    try {
+      if (refresh) {
+        ownFlatList = [];
+        notifyListeners();
+      }
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      const url = "$server/flat/fetch-own-flat";
+      SharedPreferences pref = await SharedPreferences.getInstance();
+      String? accessToken = await pref.getString("accessToken");
+      if (accessToken == null) {
+        return;
+      }
+      String id =
+          preferences.getString("userId").toString().replaceAll('"', '');
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {"Authorization": accessToken, "userId": id},
+      );
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        List<Flat> temp = [];
+        for (var element in data['data']) {
+          Flat flat = Flat.fromJson(element);
+          temp.add(flat);
+        }
+        ownFlatList = temp;
+        _ownFlatListFetched = true;
         notifyListeners();
       } else {
         print("Something went wrong");

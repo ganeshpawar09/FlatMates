@@ -1,5 +1,7 @@
+import 'package:flatmates/main.dart';
 import 'package:flatmates/models/message_model.dart';
 import 'package:flatmates/provider/chat_provider.dart';
+import 'package:flatmates/provider/notication.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,6 +9,8 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class SocketIo extends ChangeNotifier {
   IO.Socket? socket;
+  NotificationManager notificationManager =
+      NotificationManager(notificationsPlugin);
 
   Future<void> initializeSocket(BuildContext context) async {
     socket = IO.io('https://flatmates.onrender.com/', <String, dynamic>{
@@ -32,13 +36,32 @@ class SocketIo extends ChangeNotifier {
         socket!.emit("user_connect", {'userId': userId});
         socket!.on("newMessage", (data) async {
           print('New message received: $data');
-
-          Message message = Message.fromJson(data);
+          Message message = Message.fromJson(data['message']);
+          String sender = data['userName'];
+          print(sender);
+          print(message.content);
+          if (message.sender != userId) {
+            await notificationManager.showNotification(sender, message.content);
+          }
 
           Provider.of<ChatProvider>(context, listen: false).addMessage(message);
+
           print("hello");
         });
       });
+    } catch (e) {
+      print('Error connecting to socket: $e');
+    }
+  }
+
+  Future<void> disconnectFromSocket(BuildContext context) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    String? userId = preferences.getString("userId");
+
+    try {
+      socket!.emit("user_connect", {'userId': userId});
+
+      await socket!.disconnect();
     } catch (e) {
       print('Error connecting to socket: $e');
     }
@@ -54,6 +77,7 @@ class SocketIo extends ChangeNotifier {
       }
       SharedPreferences preferences = await SharedPreferences.getInstance();
       String? senderId = preferences.getString("userId");
+      String? userName = preferences.getString("userName");
       print(senderId);
       print(chatId);
       print(content);
@@ -61,6 +85,7 @@ class SocketIo extends ChangeNotifier {
         "senderId": senderId,
         "chatId": chatId,
         "content": content,
+        "userName": userName,
       });
     } catch (e) {
       print("something went wrong");

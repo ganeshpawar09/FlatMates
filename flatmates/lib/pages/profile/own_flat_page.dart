@@ -7,30 +7,29 @@ import 'package:flatmates/provider/flat_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class ShortListPage extends StatefulWidget {
-  const ShortListPage({super.key});
+class OwnFlatPage extends StatefulWidget {
+  const OwnFlatPage({super.key});
 
   @override
-  State<ShortListPage> createState() => _ShortListPageState();
+  State<OwnFlatPage> createState() => _OwnFlatPageState();
 }
 
-class _ShortListPageState extends State<ShortListPage> {
+class _OwnFlatPageState extends State<OwnFlatPage> {
   bool isRefreshing = false;
   Future<void> fetch(bool isRefresh) async {
     try {
       if (isRefresh) {
         await Provider.of<FlatProvider>(context, listen: false)
-            .fetchAllFavFlats(true);
+            .fetchAllOwnFlats(true);
       } else {
         if (!Provider.of<FlatProvider>(context, listen: false)
-            .favFlatListFetched) {
+            .ownFlatListFetched) {
           await Provider.of<FlatProvider>(context, listen: false)
-              .fetchAllFavFlats(false);
+              .fetchAllOwnFlats(false);
         }
       }
     } catch (e) {
-      showSnackBarOnPage(
-          "Something went wrong while fetching shortlisted Flats");
+      showSnackBarOnPage("Something went wrong while fetching own Flats");
     }
   }
 
@@ -45,7 +44,7 @@ class _ShortListPageState extends State<ShortListPage> {
       appBar: AppBar(
         elevation: 0,
         title: Text(
-          "ShortListed",
+          "Own Flats",
           style: AppStyles.mondaB.copyWith(
               fontSize: 25, color: Colors.black, fontWeight: FontWeight.bold),
         ),
@@ -75,7 +74,7 @@ class _ShortListPageState extends State<ShortListPage> {
             } else if (snapshot.connectionState == ConnectionState.done) {
               return Consumer<FlatProvider>(
                 builder: (context, value, child) {
-                  List<Flat> flats = value.favflatList;
+                  List<Flat> flats = value.ownFlatList;
                   if (flats.isEmpty) {
                     return Center(
                       child: Column(

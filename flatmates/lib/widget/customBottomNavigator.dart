@@ -25,10 +25,21 @@ class _CustomBottomNavigatorState extends State<CustomBottomNavigator> {
         .initializeSocket(context);
   }
 
+  void socketDispose() async {
+    await Provider.of<SocketIo>(context, listen: false)
+        .disconnectFromSocket(context);
+  }
+
   @override
   void initState() {
     super.initState();
     socketInit();
+  }
+
+  @override
+  void dispose() {
+    socketDispose();
+    super.dispose();
   }
 
   @override

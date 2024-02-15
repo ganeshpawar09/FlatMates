@@ -1,3 +1,4 @@
+import 'package:flatmates/const/colors.dart';
 import 'package:flatmates/const/font.dart';
 import 'package:flatmates/models/chat_model.dart';
 import 'package:flatmates/pages/chat/widget/chat_page_card.dart';
@@ -74,8 +75,47 @@ class _ChatPageState extends State<ChatPage> {
                 builder: (context, value, child) {
                   List<Chat> chat = value.chatList;
                   if (chat.isEmpty) {
-                    return const Center(
-                      child: Text("No data"),
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            "assets/icons/error.png",
+                            height: 100,
+                            width: 100,
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 70, vertical: 10),
+                            child: Text(
+                              "Something went wrong or There is no data",
+                              textAlign: TextAlign.center,
+                              style: AppStyles.mondaB.copyWith(fontSize: 18),
+                            ),
+                          ),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: customYellow,
+                                side: BorderSide.none,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5)),
+                                minimumSize: const Size(200, 40)),
+                            onPressed: () {
+                              fetch(true);
+                            },
+                            child: Text(
+                              "Refresh",
+                              style: AppStyles.mondaB.copyWith(
+                                  color: Colors.black,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          )
+                        ],
+                      ),
                     );
                   } else {
                     return ListView.builder(
@@ -89,11 +129,45 @@ class _ChatPageState extends State<ChatPage> {
               );
             } else {
               return Center(
-                child: TextButton(
-                  onPressed: () {
-                    fetch(true);
-                  },
-                  child: Text("Refresh"),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      "assets/icons/error.png",
+                      height: 100,
+                      width: 100,
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 70, vertical: 10),
+                      child: Text(
+                        "Something went wrong or There is no data",
+                        textAlign: TextAlign.center,
+                        style: AppStyles.mondaB.copyWith(fontSize: 18),
+                      ),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: customYellow,
+                          side: BorderSide.none,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5)),
+                          minimumSize: const Size(200, 40)),
+                      onPressed: () {
+                        fetch(true);
+                      },
+                      child: Text(
+                        "Refresh",
+                        style: AppStyles.mondaB.copyWith(
+                            color: Colors.black,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    )
+                  ],
                 ),
               );
             }

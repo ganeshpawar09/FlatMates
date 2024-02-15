@@ -23,13 +23,13 @@ class _VerifyOTPPageState extends State<VerifyOTPPage> {
 
     if (resend) {
       print("hello");
-      final snackBar = SnackBar(
-        content: const Text('OTP send successfully'),
+      const snackBar = SnackBar(
+        content: Text('OTP send successfully'),
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     } else {
-      final snackBar = SnackBar(
-        content: const Text('Something went wrong Try Again'),
+      const snackBar = SnackBar(
+        content: Text('Something went wrong Try Again'),
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
@@ -38,8 +38,8 @@ class _VerifyOTPPageState extends State<VerifyOTPPage> {
   void verifyOTP() async {
     String otp = _otp.text;
     if (otp.length != 6) {
-      final snackBar = SnackBar(
-        content: const Text('Invalid OTP'),
+      const snackBar = SnackBar(
+        content: Text('Invalid OTP'),
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
       return;
@@ -48,15 +48,17 @@ class _VerifyOTPPageState extends State<VerifyOTPPage> {
         .verifyOTPUser(widget.number, otp);
 
     if (isCorrect) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => CustomBottomNavigator(),
-        ),
-      );
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CustomBottomNavigator(),
+          ),
+        );
+      }
     } else {
-      final snackBar = SnackBar(
-        content: const Text('Something went wrong Try Again'),
+      const snackBar = SnackBar(
+        content: Text('Something went wrong Try Again'),
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
@@ -148,6 +150,7 @@ class _VerifyOTPPageState extends State<VerifyOTPPage> {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: TextField(
+                maxLength: 6,
                 textAlign: TextAlign.center,
                 keyboardType: TextInputType.number,
                 focusNode: FocusNode(),
@@ -159,7 +162,7 @@ class _VerifyOTPPageState extends State<VerifyOTPPage> {
                   fontWeight: FontWeight.bold,
                 ),
                 decoration: InputDecoration(
-                  focusedBorder: OutlineInputBorder(
+                  focusedBorder: const OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(10)),
                     borderSide: BorderSide(color: Colors.black),
                   ),
@@ -169,7 +172,8 @@ class _VerifyOTPPageState extends State<VerifyOTPPage> {
                     fontSize: 19,
                     fontWeight: FontWeight.bold,
                   ),
-                  border: OutlineInputBorder(
+                  counter: const SizedBox(),
+                  border: const OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(10)),
                   ),
                   contentPadding: EdgeInsets.zero,
@@ -187,12 +191,26 @@ class _VerifyOTPPageState extends State<VerifyOTPPage> {
             onPressed: () {
               return verifyOTP();
             },
-            child: Text(
-              "Verify",
-              style: AppStyles.mondaB.copyWith(
-                  color: Colors.black,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold),
+            child: Consumer<UserProvider>(
+              builder: (context, value, child) {
+                if (value.isloading) {
+                  return const SizedBox(
+                    height: 30,
+                    width: 30,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                    ),
+                  );
+                } else {
+                  return Text(
+                    "Verify",
+                    style: AppStyles.mondaB.copyWith(
+                        color: Colors.black,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold),
+                  );
+                }
+              },
             ),
           ),
           const SizedBox(

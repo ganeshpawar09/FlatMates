@@ -20,7 +20,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List<Widget Function()> filter = [];
   late IO.Socket socket;
-  bool appbar = true;
   bool islowtohigh = false;
   bool ishightolow = false;
   bool isforboys = false;
@@ -99,24 +98,6 @@ class _HomePageState extends State<HomePage> {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  // void connectToServer() async {
-  //   socket = IO.io('https://flatmates.onrender.com/', <String, dynamic>{
-  //     'transports': ['websocket'],
-  //     'autoConnect': false,
-  //   });
-
-  //   socket.onConnect((_) {
-  //     print('Connected to server');
-  //     print('Socket ID: ${socket.id}');
-  //   });
-
-  //   socket.onDisconnect((_) {
-  //     print('Disconnected from server');
-  //   });
-
-  //   await socket.connect();
-  // }
-
   @override
   void initState() {
     super.initState();
@@ -126,70 +107,42 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: (appbar)
-          ? AppBar(
-              elevation: 0,
-              title: RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: "Flat",
-                      style: AppStyles.mondaB.copyWith(
-                          fontSize: 30,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    TextSpan(
-                      text: "Mates",
-                      style: AppStyles.mondaB.copyWith(
-                          fontSize: 30,
-                          color: customYellow,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
+      appBar: AppBar(
+        elevation: 0,
+        title: RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: "Flat",
+                style: AppStyles.mondaB.copyWith(
+                    fontSize: 30,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold),
               ),
-              actions: [
-                IconButton(
-                  onPressed: () {
-                    setState(() {
-                      appbar = false;
-                    });
-                  },
-                  icon: Icon(
-                    UniconsLine.search,
+              TextSpan(
+                text: "Mates",
+                style: AppStyles.mondaB.copyWith(
+                    fontSize: 30,
                     color: customYellow,
-                    size: 30,
-                  ),
-                ),
-                const SizedBox(
-                  width: 30,
-                )
-              ],
-            )
-          : AppBar(
-              elevation: 0,
-              title: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: const TextField()),
-              actions: [
-                IconButton(
-                  onPressed: () {
-                    setState(() {
-                      appbar = true;
-                    });
-                  },
-                  icon: Icon(
-                    UniconsLine.abacus,
-                    color: customYellow,
-                    size: 30,
-                  ),
-                ),
-                const SizedBox(
-                  width: 30,
-                )
-              ],
+                    fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: Icon(
+              UniconsLine.search,
+              color: customYellow,
+              size: 30,
             ),
+          ),
+          const SizedBox(
+            width: 30,
+          )
+        ],
+      ),
       body: RefreshIndicator(
         color: Colors.black,
         onRefresh: () async {
@@ -228,13 +181,53 @@ class _HomePageState extends State<HomePage> {
                   )
                 ],
               );
-            } else if (snapshot.connectionState == ConnectionState.done) {
+            } else if (snapshot.connectionState == ConnectionState.done ||
+                snapshot.hasData) {
               return Consumer<FlatProvider>(
                 builder: (context, value, child) {
                   List<Flat> flats = value.flatList;
                   if (flats.isEmpty) {
-                    return const Center(
-                      child: Text("No data "),
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            "assets/icons/error.png",
+                            height: 100,
+                            width: 100,
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 70, vertical: 10),
+                            child: Text(
+                              "Something went wrong or There is no data",
+                              textAlign: TextAlign.center,
+                              style: AppStyles.mondaB.copyWith(fontSize: 18),
+                            ),
+                          ),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: customYellow,
+                                side: BorderSide.none,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5)),
+                                minimumSize: const Size(200, 40)),
+                            onPressed: () {
+                              fetch(true);
+                            },
+                            child: Text(
+                              "Refresh",
+                              style: AppStyles.mondaB.copyWith(
+                                  color: Colors.black,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          )
+                        ],
+                      ),
                     );
                   } else {
                     return Column(
@@ -290,11 +283,45 @@ class _HomePageState extends State<HomePage> {
               );
             } else {
               return Center(
-                child: TextButton(
-                  onPressed: () {
-                    fetch(true);
-                  },
-                  child: Text("Refresh"),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      "assets/icons/error.png",
+                      height: 100,
+                      width: 100,
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 70, vertical: 10),
+                      child: Text(
+                        "Something went wrong or There is no data",
+                        textAlign: TextAlign.center,
+                        style: AppStyles.mondaB.copyWith(fontSize: 18),
+                      ),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: customYellow,
+                          side: BorderSide.none,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5)),
+                          minimumSize: const Size(200, 40)),
+                      onPressed: () {
+                        fetch(true);
+                      },
+                      child: Text(
+                        "Refresh",
+                        style: AppStyles.mondaB.copyWith(
+                            color: Colors.black,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    )
+                  ],
                 ),
               );
             }

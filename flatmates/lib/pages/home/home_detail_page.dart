@@ -43,6 +43,7 @@ class _HomeDetailPageState extends State<HomeDetailPage> {
     String? userName = sharedPreferences.getString("userName");
     if (userId == ownerId) {
       showSnackBarOnPage("Your are the owner");
+      return;
     }
     Chat? chat;
     if (mounted) {
@@ -163,7 +164,6 @@ class _HomeDetailPageState extends State<HomeDetailPage> {
                           _currImage = index;
                         });
                       },
-                      autoPlay: true,
                       aspectRatio: 1,
                       viewportFraction: 1,
                       height: 240,

@@ -91,7 +91,7 @@ class _ChatPageState extends State<ChatPage> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 70, vertical: 10),
                             child: Text(
-                              "Something went wrong or There is no data",
+                              "There is no data",
                               textAlign: TextAlign.center,
                               style: AppStyles.mondaB.copyWith(fontSize: 18),
                             ),
@@ -144,7 +144,7 @@ class _ChatPageState extends State<ChatPage> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 70, vertical: 10),
                       child: Text(
-                        "Something went wrong or There is no data",
+                        "There is no data",
                         textAlign: TextAlign.center,
                         style: AppStyles.mondaB.copyWith(fontSize: 18),
                       ),

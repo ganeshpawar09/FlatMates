@@ -26,7 +26,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         .fetchMessage(false, chatId);
   }
 
-  void sendMessageToSocket() async {
+  void sendMessage() async {
     String content = _message.text;
     if (content.isEmpty) {
       SnackBar snackBar = const SnackBar(content: Text("Message is empty"));
@@ -67,70 +67,26 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                     curve: Curves.easeInOut,
                   );
                 });
-                if (message.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.asset(
-                          "assets/icons/error.png",
-                          height: 100,
-                          width: 100,
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 70, vertical: 10),
-                          child: Text(
-                            "Something went wrong or There is no data",
-                            textAlign: TextAlign.center,
-                            style: AppStyles.mondaB.copyWith(fontSize: 18),
-                          ),
-                        ),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: customYellow,
-                              side: BorderSide.none,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5)),
-                              minimumSize: const Size(200, 40)),
-                          onPressed: () {
-                            fetch();
-                          },
-                          child: Text(
-                            "Refresh",
-                            style: AppStyles.mondaB.copyWith(
-                                color: Colors.black,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        )
-                      ],
+
+                return Column(
+                  children: [
+                    Expanded(
+                      child: ListView.builder(
+                        controller: _scrollController,
+                        itemCount: message.length,
+                        itemBuilder: (context, index) {
+                          return ChatDetailPageCard(
+                              message: message[index].content,
+                              isUserMessage: message[index].sender == userId);
+                        },
+                      ),
                     ),
-                  );
-                } else {
-                  return Column(
-                    children: [
-                      Expanded(
-                        child: ListView.builder(
-                          controller: _scrollController,
-                          itemCount: message.length,
-                          itemBuilder: (context, index) {
-                            return ChatDetailPageCard(
-                                message: message[index].content,
-                                isUserMessage: message[index].sender == userId);
-                          },
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      _buildMessageInput(),
-                    ],
-                  );
-                }
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    _buildMessageInput(),
+                  ],
+                );
               },
             );
           } else {
@@ -150,7 +106,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 70, vertical: 10),
                     child: Text(
-                      "Something went wrong or There is no data",
+                      "There is no data",
                       textAlign: TextAlign.center,
                       style: AppStyles.mondaB.copyWith(fontSize: 18),
                     ),
@@ -222,7 +178,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
               color: customYellow,
             ),
             onPressed: () {
-              sendMessageToSocket();
+              sendMessage();
             },
           ),
         ],

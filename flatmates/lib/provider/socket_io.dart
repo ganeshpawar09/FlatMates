@@ -54,19 +54,6 @@ class SocketIo extends ChangeNotifier {
     }
   }
 
-  Future<void> disconnectFromSocket(BuildContext context) async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    String? userId = preferences.getString("userId");
-
-    try {
-      socket!.emit("user_connect", {'userId': userId});
-
-      await socket!.disconnect();
-    } catch (e) {
-      print('Error connecting to socket: $e');
-    }
-  }
-
   Future<void> sendMessageToSocket(
       BuildContext context, String content, String chatId) async {
     try {
@@ -89,6 +76,19 @@ class SocketIo extends ChangeNotifier {
       });
     } catch (e) {
       print("something went wrong");
+    }
+  }
+
+  Future<void> disconnectFromSocket(BuildContext context) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    String? userId = preferences.getString("userId");
+
+    try {
+      socket!.emit("user_connect", {'userId': userId});
+
+      await socket!.disconnect();
+    } catch (e) {
+      print('Error connecting to socket: $e');
     }
   }
 }

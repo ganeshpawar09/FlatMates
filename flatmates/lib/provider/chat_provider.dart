@@ -142,7 +142,7 @@ class ChatProvider extends ChangeNotifier {
 
   Future<Chat?> createNewChat(String ownerId, String flatId) async {
     try {
-      final url = "$server/chat/create-chat";
+      const url = "$server/chat/create-chat";
       SharedPreferences pref = await SharedPreferences.getInstance();
       String? accessToken = await pref.getString("accessToken");
       String? userId = await pref.getString("userId");
@@ -150,21 +150,32 @@ class ChatProvider extends ChangeNotifier {
         return null;
       }
 
-      final response = await http.post(Uri.parse(url), headers: {
-        "Authorization": accessToken,
-      }, body: {
-        "userId": userId,
-        "ownerId": ownerId,
-        "flatId": flatId,
-      });
-      final data = jsonDecode(response.body);
-      print(data);
-      if (response.statusCode == 200) {
-        Chat chat = Chat.fromJson(data['data']);
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          "Authorization": accessToken,
+        },
+        body: {
+          "userId": userId,
+          "ownerId": ownerId,
+          "flatId": flatId,
+        },
+      );
 
-        return chat;
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print(data);
+
+        if (data['data'] != null) {
+          Chat chat = Chat.fromJson(data['data']);
+          return chat;
+        } else {
+          print("Data from server is null");
+          return null;
+        }
       } else {
-        print("Something went wrong");
+        print(
+            "Something went wrong with the server. Status code: ${response.statusCode}");
         return null;
       }
     } catch (e) {

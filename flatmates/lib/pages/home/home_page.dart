@@ -48,6 +48,9 @@ class _HomePageState extends State<HomePage> {
     FlatProvider flatProvider =
         Provider.of<FlatProvider>(context, listen: false);
     if (!isLoadMore) {
+      setState(() {
+        isRefreshing = true;
+      });
       flatProvider.flatPage = 0;
     }
     String filterString =
@@ -74,6 +77,9 @@ class _HomePageState extends State<HomePage> {
     }
 
     await flatProvider.fetchAllFlats(!isLoadMore, filterString);
+    setState(() {
+      isRefreshing = false;
+    });
   }
 
   Future<void> fetch(bool isRefresh) async {
@@ -203,7 +209,7 @@ class _HomePageState extends State<HomePage> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 70, vertical: 10),
                             child: Text(
-                              "Something went wrong or There is no data",
+                              "There is no data",
                               textAlign: TextAlign.center,
                               style: AppStyles.mondaB.copyWith(fontSize: 18),
                             ),
@@ -298,7 +304,7 @@ class _HomePageState extends State<HomePage> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 70, vertical: 10),
                       child: Text(
-                        "Something went wrong or There is no data",
+                        "There is no data",
                         textAlign: TextAlign.center,
                         style: AppStyles.mondaB.copyWith(fontSize: 18),
                       ),

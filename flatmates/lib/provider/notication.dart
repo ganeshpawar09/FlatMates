@@ -7,34 +7,52 @@ class NotificationManager {
   NotificationManager(this._notificationsPlugin);
 
   void initializeNotifications() async {
-    final AndroidInitializationSettings initializationSettingsAndroid =
+    const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@drawable/done');
 
-    final InitializationSettings initializationSettings =
+    const InitializationSettings initializationSettings =
         InitializationSettings(
       android: initializationSettingsAndroid,
     );
 
-    await notificationsPlugin.initialize(initializationSettings);
-  }
+    await _notificationsPlugin.initialize(initializationSettings);
 
-  Future<void> showNotification(String sender, String message) async {
-    const AndroidNotificationDetails androidNotificationDetails =
-        AndroidNotificationDetails(
+    const AndroidNotificationChannel androidChannel =
+        AndroidNotificationChannel(
       'newmessagealert',
       'Notification Channel Name',
-      priority: Priority.max,
+      description: 'Description of your notification channel',
       importance: Importance.max,
     );
 
-    const NotificationDetails notificationDetails =
-        NotificationDetails(android: androidNotificationDetails);
+    await _notificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(androidChannel);
+  }
 
-    await _notificationsPlugin.show(
-      0,
-      sender,
-      message,
-      notificationDetails,
-    );
+  Future<void> showNotification(String sender, String message) async {
+    try {
+      print("inside notificaion");
+      const AndroidNotificationDetails androidNotificationDetails =
+          AndroidNotificationDetails(
+        'newmessagealert',
+        'Notification Channel Name',
+        channelDescription: 'Description of your notification channel',
+        priority: Priority.max,
+        importance: Importance.max,
+      );
+      const NotificationDetails notificationDetails =
+          NotificationDetails(android: androidNotificationDetails);
+
+      await _notificationsPlugin.show(
+        0,
+        sender,
+        message,
+        notificationDetails,
+      );
+    } catch (e) {
+      print("Notificaiotn : ${e}");
+    }
   }
 }

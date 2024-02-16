@@ -63,7 +63,7 @@ class ChatProvider extends ChangeNotifier {
 
   Future<void> addMessage(Message message) async {
     messageList.add(message);
-    print('Updated messageList: $messageList');
+    print('Updated message: $message');
     notifyListeners();
     return;
   }

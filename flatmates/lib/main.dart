@@ -19,7 +19,7 @@ void main(List<String> args) async {
   NotificationManager notificationManager =
       NotificationManager(notificationsPlugin);
   notificationManager.initializeNotifications();
-
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const FlatMates());
 }
 

@@ -44,7 +44,8 @@ class SocketIo extends ChangeNotifier {
             await notificationManager.showNotification(sender, message.content);
           }
 
-          Provider.of<ChatProvider>(context, listen: false).addMessage(message);
+          await Provider.of<ChatProvider>(context, listen: false)
+              .addMessage(message);
 
           print("hello");
         });
